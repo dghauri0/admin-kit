@@ -1,6 +1,6 @@
 {
   "name": "admin-kit",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Brand-neutral admin control kit: dropdown, checkbox, toggle, auto-grow textarea, modal, toast, date/time. Ships behaviour and token names; consumers supply token values.",
   "license": "MIT",
   "type": "module",
