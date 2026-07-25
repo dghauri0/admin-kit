@@ -15,8 +15,8 @@ A dropdown knows how to trap focus, do type-ahead and mirror a hidden
 `<select>`. It does not know what green is.
 
 That single rule is what lets separate products share this without becoming
-one product. `ihnyc-avi-pub-landing` stays Playfair/Jost. `ihnyc-rc-cal-landing`
-stays Neon Civic. Neither can drag its brand into the other, because brand
+one product. One consumer stays Playfair/Jost; another stays a dark
+green-accented system. Neither can drag its brand into the other, because brand
 values never enter this package. Pinned versions mean each consumer upgrades on
 its own schedule.
 
@@ -26,7 +26,7 @@ The rule is enforced mechanically, not by good intentions:
 npm run lint:neutral   # fails on any colour or font literal in src/
 ```
 
-It earns its keep. Extracting this code from the pub repo, the check
+It earns its keep. On the first run against the code this was extracted from, the check
 immediately found six leaks — including
 `.ak-dialog-btn--confirm { background: var(--accent); color: #fff }`, which is
 white text on a filled accent. On a mid-green that measures ~2.15:1 and fails
