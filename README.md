@@ -1,6 +1,6 @@
-# @ihnyc/admin-kit
+# admin-kit
 
-Admin control kit shared across IHNYC / Affective Technologies admin surfaces.
+Shared admin control kit for small operator dashboards.
 Dropdown, checkbox, toggle, auto-grow textarea, modal, toast, date/time — so an
 admin panel is not rebuilt from scratch each time.
 
@@ -51,14 +51,14 @@ With Eleventy, copy them out of `node_modules` at build time:
 
 ```js
 eleventyConfig.addPassthroughCopy({
-  "node_modules/@ihnyc/admin-kit/dist": "admin/kit",
+  "node_modules/admin-kit/dist": "admin/kit",
 });
 ```
 
 **Server-injected host** (Cloudflare Workers) — use the string exports:
 
 ```js
-import { ADMIN_KIT_CSS, ADMIN_KIT_HTML, ADMIN_KIT_JS } from "@ihnyc/admin-kit";
+import { ADMIN_KIT_CSS, ADMIN_KIT_HTML, ADMIN_KIT_JS } from "admin-kit";
 ```
 
 `dist/strings.js` is generated from `src/`, so the source files are ordinary
