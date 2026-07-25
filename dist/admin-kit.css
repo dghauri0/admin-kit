@@ -1,0 +1,122 @@
+/* ---- Fields, inputs, textareas ------------------------------------------ */
+.ak-field { margin: var(--space-4) 0; }
+.ak-field:first-child { margin-top: 0; }
+.ak-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: var(--space-2); }
+.ak-input, .ak-textarea {
+  width: 100%; box-sizing: border-box; background: var(--control-bg); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px;
+  font: inherit; min-height: var(--control-h); transition: border-color .12s, box-shadow .12s;
+}
+.ak-input:focus, .ak-textarea:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-input::placeholder, .ak-textarea::placeholder { color: var(--text-faint); }
+.ak-input--sm { min-height: 34px; padding: 6px 10px; }
+.ak-input--num { width: 88px; text-align: center; }
+.ak-input--inline { width: auto; display: inline-block; }
+.ak-textarea { min-height: 96px; line-height: 1.55; resize: vertical; }
+.ak-textarea--grow { resize: none; overflow: hidden; }
+.ak-textarea--mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+.ak-field-row { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+.ak-hint { font-size: 12px; color: var(--text-faint); margin-top: var(--space-2); line-height: 1.45; }
+.ak-charcount { font-size: 12px; color: var(--text-faint); margin-top: var(--space-2); text-align: right; font-variant-numeric: tabular-nums; }
+.ak-charcount.is-over { color: var(--amber-text); }
+
+/* ---- Checkbox + toggle (pure CSS, no OS chrome) ------------------------- */
+.ak-check { position: relative; display: inline-flex; align-items: flex-start; gap: var(--space-3); cursor: pointer; font: inherit; color: var(--text); line-height: 1.45; padding: var(--space-1) 0; }
+/* position:relative on the label keeps the visually-hidden input anchored to
+   its OWN checkbox. Without it the absolute input anchors to a far-up ancestor,
+   so clicking a label focuses an input parked at the top of the page and the
+   browser scroll-jumps to it (most visible in the specials shift-picker list). */
+.ak-check input { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; }
+.ak-check-box {
+  flex: 0 0 auto; width: 20px; height: 20px; margin-top: 1px; box-sizing: border-box;
+  border: 1.5px solid var(--border-strong); border-radius: 6px; background: var(--control-bg);
+  display: inline-flex; align-items: center; justify-content: center; transition: background .12s, border-color .12s;
+}
+.ak-check-box::after { content: ""; width: 5px; height: 9px; border: solid var(--on-accent); border-width: 0 2px 2px 0; transform: rotate(45deg) scale(.4); opacity: 0; transition: opacity .12s, transform .12s; margin-bottom: 2px; }
+.ak-check input:checked + .ak-check-box { background: var(--green-solid); border-color: var(--green-solid); }
+.ak-check input:checked + .ak-check-box::after { opacity: 1; transform: rotate(45deg) scale(1); }
+.ak-check input:focus-visible + .ak-check-box { box-shadow: var(--focus-ring); border-color: var(--accent); }
+.ak-check:hover .ak-check-box { border-color: var(--accent); }
+.ak-check-text { min-width: 0; }
+.ak-check-sub { display: block; font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+/* toggle variant: add class ak-switch alongside ak-check */
+.ak-switch .ak-check-box { width: 40px; height: 22px; border-radius: var(--pill); padding: 0; position: relative; background: var(--panel-2); }
+.ak-switch .ak-check-box::after { content: ""; position: absolute; left: 2px; top: 1px; width: 16px; height: 16px; border: 0; border-radius: 50%; background: var(--text-faint); transform: none; opacity: 1; margin: 0; transition: transform .15s, background .15s; }
+.ak-switch input:checked + .ak-check-box { background: var(--green-solid); }
+.ak-switch input:checked + .ak-check-box::after { transform: translateX(18px); background: var(--on-accent); }
+
+/* ---- Custom dropdown (enhances <select class="ak-select-src">) ---------- */
+.ak-select { position: relative; display: inline-block; width: 100%; }
+.ak-select-src { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+.ak-select-trigger {
+  display: inline-flex; align-items: center; width: 100%; box-sizing: border-box;
+  background: var(--control-bg); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 9px 36px 9px 12px; font: inherit; min-height: var(--control-h);
+  cursor: pointer; text-align: left; position: relative; line-height: 1.3;
+}
+.ak-select-trigger::after { content: ""; position: absolute; right: 14px; top: 50%; width: 8px; height: 8px; border-right: 1.5px solid var(--text-faint); border-bottom: 1.5px solid var(--text-faint); transform: translateY(-70%) rotate(45deg); transition: transform .15s; }
+.ak-select[data-open] .ak-select-trigger::after { transform: translateY(-30%) rotate(225deg); }
+.ak-select-trigger:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-select[data-open] .ak-select-trigger { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-select-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ak-select-panel {
+  position: absolute; z-index: 60; left: 0; top: calc(100% + 4px); min-width: 100%; max-height: 280px;
+  overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pop); padding: 4px; display: none;
+}
+.ak-select[data-open] .ak-select-panel { display: block; }
+.ak-select--up .ak-select-panel { top: auto; bottom: calc(100% + 4px); }
+.ak-option { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; padding: 9px 12px; border-radius: 6px; cursor: pointer; white-space: normal; line-height: 1.4; }
+.ak-option:hover, .ak-option.is-active { background: var(--panel-2); }
+.ak-option[aria-selected="true"] { color: var(--green-text); font-weight: 600; }
+
+/* ---- Date/time popover --------------------------------------------------- */
+.ak-dt { position: relative; display: inline-block; width: 100%; }
+.ak-dt-trigger { width: 100%; box-sizing: border-box; background: var(--control-bg); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font: inherit; min-height: var(--control-h); cursor: pointer; text-align: left; display: inline-flex; align-items: center; gap: 8px; }
+.ak-dt-trigger::before { content: "\\1F4C5"; font-size: 14px; opacity: .8; }
+.ak-dt-trigger.is-empty { color: var(--text-faint); }
+.ak-dt-trigger:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-dt-pop { position: absolute; z-index: 61; left: 0; top: calc(100% + 6px); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-pop); padding: var(--space-4); display: none; width: 280px; }
+.ak-dt[data-open] .ak-dt-pop { display: block; }
+.ak-dt-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+.ak-dt-head button { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); width: 30px; height: 30px; cursor: pointer; font-size: 14px; }
+.ak-dt-mon { font-weight: 600; font-size: 14px; }
+.ak-dt-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.ak-dt-dow { font-size: 11px; color: var(--text-faint); text-align: center; padding: 4px 0; }
+.ak-dt-day { aspect-ratio: 1; border: 0; background: none; color: var(--text); border-radius: 6px; cursor: pointer; font: inherit; font-size: 13px; }
+.ak-dt-day:hover { background: var(--panel-2); }
+.ak-dt-day.is-empty { visibility: hidden; cursor: default; }
+.ak-dt-day.is-sel { background: var(--green-solid); color: var(--on-accent); font-weight: 600; }
+.ak-dt-day.is-today { box-shadow: inset 0 0 0 1px var(--border-strong); }
+.ak-dt-time { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--hairline); }
+.ak-dt-time .ak-select { width: auto; flex: 1; }
+.ak-dt-foot { display: flex; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); }
+.ak-dt-clear { background: none; border: 0; color: var(--text-faint); cursor: pointer; font: inherit; font-size: 13px; padding: 6px 8px; }
+.ak-dt-clear:hover { color: var(--text); }
+.ak-dt-done { background: var(--green-solid); border: 0; color: var(--on-accent); border-radius: var(--radius-sm); padding: 7px 16px; cursor: pointer; font: inherit; font-weight: 600; }
+
+/* ---- Modal dialog (replaces window.confirm/prompt/alert) ---------------- */
+.ak-dialog { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); color: var(--text); padding: 0; max-width: 440px; width: calc(100vw - 32px); box-shadow: var(--shadow-pop); }
+.ak-dialog::backdrop { background: var(--scrim); }
+.ak-dialog[open] { animation: ak-pop .14s ease-out; }
+@keyframes ak-pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.ak-dialog-body { padding: var(--space-6); }
+.ak-dialog-title { margin: 0 0 var(--space-2); font-size: 18px; font-weight: 700; }
+.ak-dialog-msg { margin: 0 0 var(--space-4); color: var(--text-muted); line-height: 1.5; white-space: pre-wrap; }
+.ak-dialog-input { width: 100%; box-sizing: border-box; font-size: 16px; min-height: 44px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--control-bg); color: var(--text); padding: 10px 14px; font-family: inherit; margin-bottom: var(--space-4); }
+.ak-dialog-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-dialog-input.is-hidden { display: none; }
+.ak-dialog-actions { display: flex; gap: var(--space-2); justify-content: flex-end; }
+.ak-dialog-btn { font: inherit; font-size: 14px; font-weight: 600; min-height: 40px; padding: 8px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer; transition: filter .12s, border-color .12s, color .12s; }
+.ak-dialog-btn--cancel { background: var(--control-bg); color: var(--text-muted); }
+.ak-dialog-btn--cancel:hover { color: var(--text); border-color: var(--text-muted); }
+.ak-dialog-btn--confirm { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.ak-dialog-btn--confirm:hover { filter: brightness(1.1); }
+.ak-dialog-btn--confirm.is-danger { background: var(--red); border-color: var(--red); }
+.ak-dialog-btn.is-hidden { display: none; }
+
+/* ---- Toast (non-modal feedback, replaces window.alert) ------------------ */
+.ak-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; z-index: 100; padding: 12px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; color: var(--text); box-shadow: var(--shadow-pop); transition: opacity .18s ease, transform .18s ease; max-width: calc(100vw - 32px); text-align: center; }
+.ak-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+.ak-toast.is-ok  { border-color: var(--green-border); color: var(--green-text); }
+.ak-toast.is-err { border-color: var(--red-border); color: var(--red-text); }
