@@ -54,9 +54,11 @@ export const ADMIN_KIT_CSS = `/* Two "text on a fill" tokens, deliberately separ
 .ak-switch input:checked + .ak-check-box { background: var(--green-solid); }
 .ak-switch input:checked + .ak-check-box::after { transform: translateX(18px); background: var(--on-green); }
 
-/* ---- Custom dropdown (enhances <select class="ak-select-src">) ---------- */
+/* ---- Custom dropdown (enhances <select data-ak-select>) ----------------- */
 .ak-select { position: relative; display: inline-block; width: 100%; }
-.ak-select-src { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+/* Scope hiding to a completed wrapper. A data-ak-select source remains a
+   visible native control when JavaScript is blocked or enhancement fails. */
+.ak-select > .ak-select-src { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 .ak-select-trigger {
   display: inline-flex; align-items: center; width: 100%; box-sizing: border-box;
   background: var(--control-bg); color: var(--text); border: 1px solid var(--border);
@@ -65,24 +67,38 @@ export const ADMIN_KIT_CSS = `/* Two "text on a fill" tokens, deliberately separ
 }
 .ak-select-trigger::after { content: ""; position: absolute; right: 14px; top: 50%; width: 8px; height: 8px; border-right: 1.5px solid var(--text-faint); border-bottom: 1.5px solid var(--text-faint); transform: translateY(-70%) rotate(45deg); transition: transform .15s; }
 .ak-select[data-open] .ak-select-trigger::after { transform: translateY(-30%) rotate(225deg); }
-.ak-select-trigger:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-select-trigger:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-color: var(--accent); box-shadow: var(--focus-ring); }
 .ak-select[data-open] .ak-select-trigger { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-select.is-disabled .ak-select-trigger { cursor: not-allowed; opacity: .62; }
 .ak-select-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ak-select-panel {
-  position: absolute; z-index: 60; left: 0; top: calc(100% + 4px); min-width: 100%; max-height: 280px;
-  overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-pop); padding: 4px; display: none;
+  position: absolute; z-index: 60; left: 0; top: calc(100% + 4px); min-width: 100%;
+  overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pop); display: none;
 }
 .ak-select[data-open] .ak-select-panel { display: block; }
 .ak-select--up .ak-select-panel { top: auto; bottom: calc(100% + 4px); }
-.ak-option { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; padding: 9px 12px; border-radius: 6px; cursor: pointer; white-space: normal; line-height: 1.4; }
-.ak-option:hover, .ak-option.is-active { background: var(--panel-2); }
+.ak-select-options { max-height: 280px; overflow-y: auto; overscroll-behavior: contain; padding: 4px; }
+.ak-option { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; padding: 9px 32px 9px 12px; border-radius: 6px; cursor: pointer; white-space: normal; line-height: 1.4; position: relative; }
+.ak-option:hover, .ak-option.is-active { background: var(--panel-2); box-shadow: inset 3px 0 0 var(--accent); }
 .ak-option[aria-selected="true"] { color: var(--green-text); font-weight: 600; }
+.ak-option[aria-selected="true"]::after { content: "\\2713"; position: absolute; right: 11px; }
+.ak-option[aria-disabled="true"] { cursor: not-allowed; opacity: .55; }
+.ak-optgroup-label { padding: 9px 12px 4px; color: var(--text-faint); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.ak-select-search { background: var(--surface); border-bottom: 1px solid var(--hairline); padding: 8px; }
+.ak-select-search input { width: 100%; box-sizing: border-box; background: var(--control-bg); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; font: inherit; font-size: 14px; }
+.ak-select-search input:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-select-empty { padding: 12px; color: var(--text-faint); font-size: 13px; }
+
+@media (forced-colors: active) {
+  .ak-select-trigger:focus-visible, .ak-select-search input:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; box-shadow: none; }
+  .ak-option:hover, .ak-option.is-active { outline: 2px solid Highlight; outline-offset: -2px; box-shadow: none; }
+}
 
 /* ---- Date/time popover --------------------------------------------------- */
 .ak-dt { position: relative; display: inline-block; width: 100%; }
 .ak-dt-trigger { width: 100%; box-sizing: border-box; background: var(--control-bg); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font: inherit; min-height: var(--control-h); cursor: pointer; text-align: left; display: inline-flex; align-items: center; gap: 8px; }
-.ak-dt-trigger::before { content: "\\\\1F4C5"; font-size: 14px; opacity: .8; }
+.ak-dt-trigger::before { content: "📅"; font-size: 14px; opacity: .8; }
 .ak-dt-trigger.is-empty { color: var(--text-faint); }
 .ak-dt-trigger:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
 .ak-dt-pop { position: absolute; z-index: 61; left: 0; top: calc(100% + 6px); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-pop); padding: var(--space-4); display: none; width: 280px; }
@@ -248,80 +264,395 @@ export const ADMIN_KIT_JS = `(function () {
     toastTimer = setTimeout(function () { toastEl.className = "ak-toast" + (kind ? " is-" + kind : ""); }, 2600);
   }
 
-  // ----- Custom dropdown (enhance a native <select>) -----------------------
-  var openSelect = null;
+  // ----- Custom dropdown (enhance a native single <select>) ---------------
+  // The native select remains the form value store. It is hidden only after a
+  // successful enhancement, so blocked or failed JavaScript leaves a usable
+  // native control instead of an empty field.
+  var openSelect = null, selectId = 0;
 
-  function closeSelect() {
-    if (openSelect) { openSelect.removeAttribute("data-open"); openSelect = null; }
+  function nextSelectId(prefix) {
+    selectId += 1;
+    return prefix + "-" + selectId;
+  }
+
+  function closeSelect(returnFocus) {
+    if (!openSelect) return;
+    var wrap = openSelect, trigger = wrap.__trigger, search = wrap.__search;
+    wrap.removeAttribute("data-open");
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.removeAttribute("aria-activedescendant");
+    if (search) search.removeAttribute("aria-activedescendant");
+    openSelect = null;
+    if (returnFocus) trigger.focus();
+  }
+
+  function optionButtons(wrap) {
+    return wrap.__panel ? wrap.__panel.querySelectorAll(".ak-option") : [];
+  }
+
+  function isAvailable(button) {
+    return !button.hidden && button.getAttribute("aria-disabled") !== "true";
+  }
+
+  function setActive(wrap, optionIndex, scroll) {
+    var buttons = optionButtons(wrap), active = null;
+    for (var i = 0; i < buttons.length; i++) {
+      var isActive = parseInt(buttons[i].dataset.idx, 10) === optionIndex && isAvailable(buttons[i]);
+      buttons[i].classList.toggle("is-active", isActive);
+      if (isActive) active = buttons[i];
+    }
+    wrap.__activeIndex = active ? optionIndex : -1;
+    var id = active ? active.id : "";
+    var owner = wrap.__search && document.activeElement === wrap.__search ? wrap.__search : wrap.__trigger;
+    wrap.__trigger.removeAttribute("aria-activedescendant");
+    if (wrap.__search) wrap.__search.removeAttribute("aria-activedescendant");
+    if (id) owner.setAttribute("aria-activedescendant", id);
+    if (active && scroll && active.scrollIntoView) active.scrollIntoView({ block: "nearest" });
+  }
+
+  function availableIndices(wrap) {
+    var buttons = optionButtons(wrap), indices = [];
+    for (var i = 0; i < buttons.length; i++) {
+      if (isAvailable(buttons[i])) indices.push(parseInt(buttons[i].dataset.idx, 10));
+    }
+    return indices;
+  }
+
+  function moveActive(wrap, delta) {
+    var indices = availableIndices(wrap);
+    if (!indices.length) return;
+    var position = indices.indexOf(wrap.__activeIndex);
+    if (position < 0) position = delta > 0 ? -1 : 0;
+    position = Math.max(0, Math.min(indices.length - 1, position + delta));
+    setActive(wrap, indices[position], true);
+  }
+
+  function edgeActive(wrap, last) {
+    var indices = availableIndices(wrap);
+    if (indices.length) setActive(wrap, indices[last ? indices.length - 1 : 0], true);
+    else setActive(wrap, -1, false);
   }
 
   function syncTrigger(wrap) {
-    var sel = wrap.__sel, label = wrap.querySelector(".ak-select-label");
+    var sel = wrap.__sel, trigger = wrap.__trigger;
+    var label = trigger.querySelector(".ak-select-label");
     var opt = sel.options[sel.selectedIndex];
     if (label) label.textContent = opt ? opt.textContent : "";
-    var panel = wrap.querySelector(".ak-select-panel");
-    if (panel) {
-      var btns = panel.querySelectorAll(".ak-option");
-      for (var i = 0; i < btns.length; i++) {
-        btns[i].setAttribute("aria-selected", String(i === sel.selectedIndex));
-      }
+    var buttons = optionButtons(wrap);
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].setAttribute(
+        "aria-selected",
+        String(parseInt(buttons[i].dataset.idx, 10) === sel.selectedIndex)
+      );
     }
+    trigger.disabled = sel.disabled;
+    trigger.setAttribute("aria-required", String(sel.required));
+    wrap.classList.toggle("is-disabled", sel.disabled);
+    if (sel.disabled && openSelect === wrap) closeSelect(false);
+    if (wrap.__invalid && sel.validity.valid) wrap.__invalid = false;
+    if (wrap.__invalid) trigger.setAttribute("aria-invalid", "true");
+    else trigger.removeAttribute("aria-invalid");
+  }
+
+  function commitActive(wrap, returnFocus) {
+    var index = wrap.__activeIndex, sel = wrap.__sel;
+    if (sel.disabled) return false;
+    var buttons = optionButtons(wrap), active = null;
+    for (var i = 0; i < buttons.length; i++) {
+      if (parseInt(buttons[i].dataset.idx, 10) === index) active = buttons[i];
+    }
+    if (index < 0 || !sel.options[index] || !active || !isAvailable(active)) return false;
+    var changed = sel.selectedIndex !== index;
+    sel.selectedIndex = index;
+    wrap.__invalid = !sel.validity.valid;
+    syncTrigger(wrap);
+    closeSelect(returnFocus !== false);
+    if (changed) {
+      sel.dispatchEvent(new Event("input", { bubbles: true }));
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    return true;
+  }
+
+  function updateGroups(panel) {
+    var groups = panel.querySelectorAll(".ak-optgroup");
+    for (var i = 0; i < groups.length; i++) {
+      var any = false;
+      var options = groups[i].querySelectorAll(".ak-option");
+      for (var j = 0; j < options.length; j++) if (!options[j].hidden) any = true;
+      groups[i].hidden = !any;
+    }
+  }
+
+  function filterOptions(wrap) {
+    if (!wrap.__search) return;
+    var query = wrap.__search.value.trim().toLowerCase();
+    var buttons = optionButtons(wrap), shown = 0;
+    for (var i = 0; i < buttons.length; i++) {
+      var hit = !query || buttons[i].textContent.toLowerCase().indexOf(query) !== -1;
+      buttons[i].hidden = !hit;
+      if (hit) shown += 1;
+    }
+    updateGroups(wrap.__panel);
+    wrap.__empty.hidden = shown > 0;
+    var current = buttons.length && buttons[0];
+    for (var j = 0; j < buttons.length; j++) {
+      if (parseInt(buttons[j].dataset.idx, 10) === wrap.__activeIndex) current = buttons[j];
+    }
+    if (!current || !isAvailable(current)) edgeActive(wrap, false);
+    else setActive(wrap, wrap.__activeIndex, false);
   }
 
   function buildPanel(wrap) {
     var sel = wrap.__sel;
     var panel = document.createElement("div");
     panel.className = "ak-select-panel";
-    panel.setAttribute("role", "listbox");
-    for (var i = 0; i < sel.options.length; i++) {
-      var o = sel.options[i];
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "ak-option"; b.setAttribute("role", "option");
-      b.dataset.idx = String(i); b.textContent = o.textContent;
-      panel.appendChild(b);
+    panel.addEventListener("click", function (e) { e.stopPropagation(); });
+
+    var searchPref = sel.getAttribute("data-ak-search");
+    var wantSearch = searchPref === "on" || (searchPref !== "off" && sel.options.length > 12);
+    if (wantSearch) {
+      var searchBox = document.createElement("div");
+      searchBox.className = "ak-select-search";
+      var search = document.createElement("input");
+      search.type = "search";
+      search.autocomplete = "off";
+      search.placeholder = "Search options";
+      search.setAttribute("aria-label", "Search " + (wrap.__fieldLabel || "options"));
+      search.setAttribute("aria-controls", wrap.__listId);
+      searchBox.appendChild(search);
+      panel.appendChild(searchBox);
+      wrap.__search = search;
+      search.addEventListener("input", function () { filterOptions(wrap); });
+      search.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault(); moveActive(wrap, e.key === "ArrowDown" ? 1 : -1);
+        } else if (e.key === "Enter") {
+          e.preventDefault(); commitActive(wrap);
+        } else if (e.key === "Escape") {
+          if (openSelect === wrap) {
+            e.preventDefault(); closeSelect(true);
+          }
+        } else if (e.key === "Tab") {
+          if (openSelect === wrap && !commitActive(wrap, false)) closeSelect(false);
+        }
+      });
+    } else {
+      wrap.__search = null;
     }
+
+    var list = document.createElement("div");
+    list.className = "ak-select-options";
+    list.id = wrap.__listId;
+    list.setAttribute("role", "listbox");
+    panel.appendChild(list);
+
+    function appendOption(option, parent, groupDisabled) {
+      var index = Array.prototype.indexOf.call(sel.options, option);
+      var row = document.createElement("div");
+      row.className = "ak-option";
+      row.id = wrap.__listId + "-option-" + index;
+      row.setAttribute("role", "option");
+      row.setAttribute("aria-selected", String(index === sel.selectedIndex));
+      row.setAttribute("aria-disabled", String(option.disabled || groupDisabled));
+      row.dataset.idx = String(index);
+      row.textContent = option.textContent;
+      parent.appendChild(row);
+    }
+
+    for (var i = 0; i < sel.children.length; i++) {
+      var node = sel.children[i];
+      if (node.tagName === "OPTGROUP") {
+        var group = document.createElement("div");
+        group.className = "ak-optgroup";
+        group.setAttribute("role", "group");
+        group.setAttribute("aria-label", node.label || "Options");
+        var heading = document.createElement("div");
+        heading.className = "ak-optgroup-label";
+        heading.setAttribute("aria-hidden", "true");
+        heading.textContent = node.label || "";
+        group.appendChild(heading);
+        for (var j = 0; j < node.children.length; j++) appendOption(node.children[j], group, node.disabled);
+        list.appendChild(group);
+      } else if (node.tagName === "OPTION") {
+        appendOption(node, list, false);
+      }
+    }
+
+    var empty = document.createElement("div");
+    empty.className = "ak-select-empty";
+    empty.textContent = "No matching options";
+    empty.hidden = true;
+    empty.setAttribute("role", "status");
+    panel.appendChild(empty);
+    wrap.__empty = empty;
+
     panel.addEventListener("click", function (e) {
-      var b = e.target.closest(".ak-option");
-      if (!b) return;
-      sel.selectedIndex = parseInt(b.dataset.idx, 10);
-      sel.dispatchEvent(new Event("change", { bubbles: true }));
-      syncTrigger(wrap);
-      closeSelect();
+      var row = e.target.closest(".ak-option");
+      if (!row || row.getAttribute("aria-disabled") === "true") return;
+      setActive(wrap, parseInt(row.dataset.idx, 10), false);
+      commitActive(wrap);
     });
     return panel;
   }
 
+  function openSelectWidget(wrap, focusSearch) {
+    if (wrap.__sel.disabled) return;
+    if (openSelect && openSelect !== wrap) closeSelect(false);
+    var r = wrap.__trigger.getBoundingClientRect();
+    wrap.classList.toggle("ak-select--up", (window.innerHeight - r.bottom) < 320 && r.top > 320);
+    wrap.setAttribute("data-open", "");
+    wrap.__trigger.setAttribute("aria-expanded", "true");
+    openSelect = wrap;
+    if (wrap.__search) {
+      wrap.__search.value = "";
+      filterOptions(wrap);
+    }
+    setActive(wrap, wrap.__sel.selectedIndex, true);
+    if (focusSearch && wrap.__search) {
+      wrap.__search.focus();
+      setActive(wrap, wrap.__activeIndex, false);
+    }
+  }
+
   function enhanceSelect(sel) {
-    if (sel.__akDone) return;
-    sel.__akDone = true;
+    var declaredSize = parseInt(sel.getAttribute("size") || "0", 10);
+    if (sel.__akDone || sel.multiple || declaredSize > 1) return false;
+    var parent = sel.parentNode;
+    if (!parent) return false;
     var wrap = document.createElement("div");
-    wrap.className = "ak-select";
-    sel.parentNode.insertBefore(wrap, sel);
-    wrap.appendChild(sel);
-    sel.classList.add("ak-select-src");
-    sel.setAttribute("tabindex", "-1");
-    sel.setAttribute("aria-hidden", "true");
-    wrap.__sel = sel;
-
     var trigger = document.createElement("button");
-    trigger.type = "button"; trigger.className = "ak-select-trigger";
-    trigger.setAttribute("aria-haspopup", "listbox");
-    trigger.innerHTML = '<span class="ak-select-label"></span>';
-    wrap.appendChild(trigger);
-    wrap.appendChild(buildPanel(wrap));
-    syncTrigger(wrap);
+    var labels = sel.labels ? Array.prototype.slice.call(sel.labels) : [];
+    var originalTabIndex = sel.getAttribute("tabindex");
+    var originalAriaHidden = sel.getAttribute("aria-hidden");
+    for (var l = 0; l < labels.length; l++) {
+      // A generated button inside an implicit <label> creates nested
+      // interactive content. Leave that source native until its consumer uses
+      // an explicit for/id relationship.
+      if (labels[l].contains(sel)) return false;
+    }
+    try {
+      wrap.className = "ak-select";
+      wrap.__sel = sel;
+      wrap.__activeIndex = sel.selectedIndex;
+      wrap.__invalid = false;
+      wrap.__listId = nextSelectId("ak-listbox");
+      wrap.__fieldLabel = sel.getAttribute("aria-label") ||
+        (labels.length ? labels[0].textContent.trim() : "options");
+      parent.insertBefore(wrap, sel);
+      wrap.appendChild(sel);
 
-    trigger.addEventListener("click", function (e) {
-      e.stopPropagation();
-      if (openSelect === wrap) { closeSelect(); return; }
-      closeSelect();
-      // flip up if not enough room below
-      var r = trigger.getBoundingClientRect();
-      wrap.classList.toggle("ak-select--up", (window.innerHeight - r.bottom) < 280 && r.top > 280);
-      wrap.setAttribute("data-open", ""); openSelect = wrap;
-    });
-    // keyboard: reflect native select changes
-    sel.addEventListener("change", function () { syncTrigger(wrap); });
+      trigger.type = "button";
+      trigger.className = "ak-select-trigger";
+      trigger.id = nextSelectId("ak-select-trigger");
+      trigger.setAttribute("role", "combobox");
+      trigger.setAttribute("aria-haspopup", "listbox");
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.setAttribute("aria-controls", wrap.__listId);
+      trigger.setAttribute("aria-autocomplete", "none");
+      trigger.innerHTML = '<span class="ak-select-label"></span>';
+      if (sel.hasAttribute("aria-label")) trigger.setAttribute("aria-label", sel.getAttribute("aria-label"));
+      if (sel.hasAttribute("aria-labelledby")) trigger.setAttribute("aria-labelledby", sel.getAttribute("aria-labelledby"));
+      if (sel.hasAttribute("aria-describedby")) trigger.setAttribute("aria-describedby", sel.getAttribute("aria-describedby"));
+      if (sel.hasAttribute("aria-errormessage")) trigger.setAttribute("aria-errormessage", sel.getAttribute("aria-errormessage"));
+      for (var i = 0; i < labels.length; i++) {
+        if (labels[i].htmlFor === sel.id) labels[i].htmlFor = trigger.id;
+      }
+      wrap.__trigger = trigger;
+      wrap.appendChild(trigger);
+      wrap.__panel = buildPanel(wrap);
+      wrap.appendChild(wrap.__panel);
+
+      // Hide from sight and the accessibility tree only after every generated
+      // control exists. The native select continues to serialize the form.
+      sel.classList.add("ak-select-src");
+      sel.setAttribute("tabindex", "-1");
+      sel.setAttribute("aria-hidden", "true");
+      sel.__akDone = true;
+      syncTrigger(wrap);
+
+      trigger.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (openSelect === wrap) closeSelect(false);
+        else openSelectWidget(wrap, true);
+      });
+      trigger.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault();
+          if (openSelect !== wrap) openSelectWidget(wrap, false);
+          else moveActive(wrap, e.key === "ArrowDown" ? 1 : -1);
+        } else if (e.key === "Home" || e.key === "End") {
+          e.preventDefault();
+          if (openSelect !== wrap) openSelectWidget(wrap, false);
+          edgeActive(wrap, e.key === "End");
+        } else if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (openSelect !== wrap) openSelectWidget(wrap, true);
+          else commitActive(wrap);
+        } else if (e.key === "Escape") {
+          if (openSelect === wrap) {
+            e.preventDefault(); closeSelect(true);
+          }
+        } else if (e.key === "Tab") {
+          if (openSelect === wrap && !commitActive(wrap, false)) closeSelect(false);
+        } else if (e.key.length === 1 && !e.altKey && !e.ctrlKey && !e.metaKey) {
+          if (wrap.__search) {
+            e.preventDefault();
+            if (openSelect !== wrap) openSelectWidget(wrap, true);
+            wrap.__search.value += e.key;
+            filterOptions(wrap);
+          } else {
+            var now = Date.now();
+            wrap.__typeahead = now - (wrap.__typeaheadAt || 0) < 700 ? (wrap.__typeahead || "") + e.key.toLowerCase() : e.key.toLowerCase();
+            wrap.__typeaheadAt = now;
+            if (openSelect !== wrap) openSelectWidget(wrap, false);
+            var indices = availableIndices(wrap);
+            for (var t = 0; t < indices.length; t++) {
+              if (sel.options[indices[t]].textContent.trim().toLowerCase().indexOf(wrap.__typeahead) === 0) {
+                setActive(wrap, indices[t], true); break;
+              }
+            }
+          }
+        }
+      });
+      sel.addEventListener("focus", function () {
+        if (document.activeElement === sel) trigger.focus();
+      });
+      sel.addEventListener("change", function () {
+        wrap.__invalid = wrap.__invalid && !sel.validity.valid;
+        syncTrigger(wrap);
+      });
+      sel.addEventListener("invalid", function () {
+        wrap.__invalid = true;
+        syncTrigger(wrap);
+        // checkValidity() also emits invalid and must not steal focus. During
+        // actual native form validation, redirect only if the browser moved
+        // focus onto the visually clipped source.
+        setTimeout(function () {
+          if (document.activeElement === sel) trigger.focus();
+        }, 0);
+      });
+      if (sel.form) sel.form.addEventListener("reset", function () {
+        if (openSelect === wrap) closeSelect(false);
+        setTimeout(function () { wrap.__invalid = false; syncTrigger(wrap); }, 0);
+      });
+      return true;
+    } catch (error) {
+      if (wrap.parentNode) {
+        wrap.parentNode.insertBefore(sel, wrap);
+        wrap.remove();
+      }
+      sel.classList.remove("ak-select-src");
+      if (originalTabIndex === null) sel.removeAttribute("tabindex");
+      else sel.setAttribute("tabindex", originalTabIndex);
+      if (originalAriaHidden === null) sel.removeAttribute("aria-hidden");
+      else sel.setAttribute("aria-hidden", originalAriaHidden);
+      sel.__akDone = false;
+      for (var j = 0; j < labels.length; j++) {
+        if (labels[j].htmlFor === trigger.id) labels[j].htmlFor = sel.id;
+      }
+      return false;
+    }
   }
 
   // ----- Auto-grow textarea ------------------------------------------------
@@ -391,9 +722,9 @@ export const ADMIN_KIT_JS = `(function () {
       var days = new Date(y, m + 1, 0).getDate();
       var today = new Date();
       var monName = view.toLocaleDateString(undefined, { month: "long", year: "numeric" });
-      var html = '<div class="ak-dt-head"><button type="button" data-nav="-1">\\\\u2039</button>'
+      var html = '<div class="ak-dt-head"><button type="button" data-nav="-1">‹</button>'
         + '<span class="ak-dt-mon">' + esc(monName) + '</span>'
-        + '<button type="button" data-nav="1">\\\\u203A</button></div><div class="ak-dt-grid">';
+        + '<button type="button" data-nav="1">›</button></div><div class="ak-dt-grid">';
       for (var d = 0; d < 7; d++) html += '<div class="ak-dt-dow">' + DOW[d] + '</div>';
       for (var i = 0; i < first; i++) html += '<button class="ak-dt-day is-empty" disabled></button>';
       for (var day = 1; day <= days; day++) {
@@ -438,9 +769,11 @@ export const ADMIN_KIT_JS = `(function () {
   // ----- Enhance / refresh dispatch ---------------------------------------
   function enhance(root) {
     root = root || document;
-    var sels = root.querySelectorAll("select.ak-select-src:not(.ak-dt-h):not(.ak-dt-m)");
+    var sels = root.querySelectorAll("select[data-ak-select], select.ak-select-src:not(.ak-dt-h):not(.ak-dt-m)");
     for (var i = 0; i < sels.length; i++) {
       var sel = sels[i];
+      var declaredSize = parseInt(sel.getAttribute("size") || "0", 10);
+      if (sel.multiple || declaredSize > 1) continue;
       if (!sel.closest(".ak-select")) {
         enhanceSelect(sel);
       } else if (sel.__akDone) {
@@ -449,7 +782,11 @@ export const ADMIN_KIT_JS = `(function () {
         // and re-sync the trigger label so the UI reflects the new option set.
         var wrap = sel.closest(".ak-select");
         var old = wrap && wrap.querySelector(".ak-select-panel");
-        if (old) old.replaceWith(buildPanel(wrap));
+        if (old) {
+          if (openSelect === wrap) closeSelect(false);
+          wrap.__panel = buildPanel(wrap);
+          old.replaceWith(wrap.__panel);
+        }
         syncTrigger(wrap);
       }
     }

@@ -53,9 +53,11 @@
 .ak-switch input:checked + .ak-check-box { background: var(--green-solid); }
 .ak-switch input:checked + .ak-check-box::after { transform: translateX(18px); background: var(--on-green); }
 
-/* ---- Custom dropdown (enhances <select class="ak-select-src">) ---------- */
+/* ---- Custom dropdown (enhances <select data-ak-select>) ----------------- */
 .ak-select { position: relative; display: inline-block; width: 100%; }
-.ak-select-src { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+/* Scope hiding to a completed wrapper. A data-ak-select source remains a
+   visible native control when JavaScript is blocked or enhancement fails. */
+.ak-select > .ak-select-src { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
 .ak-select-trigger {
   display: inline-flex; align-items: center; width: 100%; box-sizing: border-box;
   background: var(--control-bg); color: var(--text); border: 1px solid var(--border);
@@ -64,24 +66,38 @@
 }
 .ak-select-trigger::after { content: ""; position: absolute; right: 14px; top: 50%; width: 8px; height: 8px; border-right: 1.5px solid var(--text-faint); border-bottom: 1.5px solid var(--text-faint); transform: translateY(-70%) rotate(45deg); transition: transform .15s; }
 .ak-select[data-open] .ak-select-trigger::after { transform: translateY(-30%) rotate(225deg); }
-.ak-select-trigger:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-select-trigger:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-color: var(--accent); box-shadow: var(--focus-ring); }
 .ak-select[data-open] .ak-select-trigger { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-select.is-disabled .ak-select-trigger { cursor: not-allowed; opacity: .62; }
 .ak-select-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ak-select-panel {
-  position: absolute; z-index: 60; left: 0; top: calc(100% + 4px); min-width: 100%; max-height: 280px;
-  overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-pop); padding: 4px; display: none;
+  position: absolute; z-index: 60; left: 0; top: calc(100% + 4px); min-width: 100%;
+  overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pop); display: none;
 }
 .ak-select[data-open] .ak-select-panel { display: block; }
 .ak-select--up .ak-select-panel { top: auto; bottom: calc(100% + 4px); }
-.ak-option { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; padding: 9px 12px; border-radius: 6px; cursor: pointer; white-space: normal; line-height: 1.4; }
-.ak-option:hover, .ak-option.is-active { background: var(--panel-2); }
+.ak-select-options { max-height: 280px; overflow-y: auto; overscroll-behavior: contain; padding: 4px; }
+.ak-option { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--text); font: inherit; padding: 9px 32px 9px 12px; border-radius: 6px; cursor: pointer; white-space: normal; line-height: 1.4; position: relative; }
+.ak-option:hover, .ak-option.is-active { background: var(--panel-2); box-shadow: inset 3px 0 0 var(--accent); }
 .ak-option[aria-selected="true"] { color: var(--green-text); font-weight: 600; }
+.ak-option[aria-selected="true"]::after { content: "\2713"; position: absolute; right: 11px; }
+.ak-option[aria-disabled="true"] { cursor: not-allowed; opacity: .55; }
+.ak-optgroup-label { padding: 9px 12px 4px; color: var(--text-faint); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.ak-select-search { background: var(--surface); border-bottom: 1px solid var(--hairline); padding: 8px; }
+.ak-select-search input { width: 100%; box-sizing: border-box; background: var(--control-bg); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; font: inherit; font-size: 14px; }
+.ak-select-search input:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-color: var(--accent); box-shadow: var(--focus-ring); }
+.ak-select-empty { padding: 12px; color: var(--text-faint); font-size: 13px; }
+
+@media (forced-colors: active) {
+  .ak-select-trigger:focus-visible, .ak-select-search input:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; box-shadow: none; }
+  .ak-option:hover, .ak-option.is-active { outline: 2px solid Highlight; outline-offset: -2px; box-shadow: none; }
+}
 
 /* ---- Date/time popover --------------------------------------------------- */
 .ak-dt { position: relative; display: inline-block; width: 100%; }
 .ak-dt-trigger { width: 100%; box-sizing: border-box; background: var(--control-bg); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font: inherit; min-height: var(--control-h); cursor: pointer; text-align: left; display: inline-flex; align-items: center; gap: 8px; }
-.ak-dt-trigger::before { content: "\\1F4C5"; font-size: 14px; opacity: .8; }
+.ak-dt-trigger::before { content: "📅"; font-size: 14px; opacity: .8; }
 .ak-dt-trigger.is-empty { color: var(--text-faint); }
 .ak-dt-trigger:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
 .ak-dt-pop { position: absolute; z-index: 61; left: 0; top: calc(100% + 6px); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-pop); padding: var(--space-4); display: none; width: 280px; }
