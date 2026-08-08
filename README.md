@@ -11,7 +11,7 @@ Class prefix: `ak-`. No framework, no build step required by consumers.
 > **This package ships behaviour and token _names_. Each consumer supplies the
 > token _values_.**
 
-A dropdown knows how to trap focus, do type-ahead and mirror a hidden
+A dropdown knows how to manage focus, do type-ahead and mirror a hidden
 `<select>`. It does not know what green is.
 
 That single rule is what lets separate products share this without becoming
@@ -78,17 +78,38 @@ AdminKit.refresh(root)               // re-sync labels after a programmatic .val
 
 | Control | Markup |
 |---|---|
-| Dropdown | `<select class="ak-select-src">` + `AdminKit.enhance(root)` |
+| Dropdown | `<label for="kind">Kind</label><select id="kind" data-ak-select>` + `AdminKit.enhance(root)` |
 | Checkbox | `<label class="ak-check"><input type=checkbox><span class="ak-check-box"></span><span class="ak-check-text">…</span></label>` |
 | Toggle | add `ak-switch` to an `ak-check` |
 | Auto-grow textarea | `<textarea class="ak-autogrow">` |
 | Date/time | `<input class="ak-datetime" type="datetime-local">` |
 
-Enhancement is progressive: the dropdown keeps the real `<select>` in the DOM
-as the source of truth, so code reading `.value` or listening for `change`
-keeps working. Call `AdminKit.enhance(container)` after any dynamic
-`innerHTML` render, and `AdminKit.refresh(root)` after setting `.value`
+Enhancement is progressive: use `data-ak-select` and the native control stays
+visible until JavaScript has built the complete custom control. The real
+`<select>` remains in the DOM as the form-value source, so code reading
+`.value` or listening for `change` keeps working. The legacy
+`class="ak-select-src"` opt-in remains supported, but new consumers should use
+the data attribute for a resilient no-script fallback.
+
+Only ordinary single selects are enhanced. A `multiple` select or a select
+with `size > 1` remains native; silently turning either into a single-choice
+popup would change its form semantics. Use an explicit `for`/`id` label (or
+an ARIA label); an implicit label is left native so enhancement never nests a
+generated button inside a label. Long lists gain an in-panel search by
+default above 12 options. Use `data-ak-search="on"` to force it or
+`data-ak-search="off"` to disable it.
+
+The generated select-only combobox preserves the native source as the value
+store, transfers the explicit label and description relationship, mirrors
+required/disabled/invalid state, skips disabled options, and supports Arrow
+keys, Home/End, Enter/Space, Escape, Tab, and buffered type-ahead. Call
+`AdminKit.enhance(container)` after any dynamic `innerHTML` render, and
+`AdminKit.refresh(root)` after setting `.value` or `.disabled`
 programmatically.
+
+The date/time enhancer currently renders five-minute choices. Consumers that
+require a different `step`, strict `min`/`max` behavior, or a native mobile
+picker should keep `datetime-local` native until that contract is expanded.
 
 ## Why not an off-the-shelf library
 
