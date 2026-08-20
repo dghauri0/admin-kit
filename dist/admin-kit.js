@@ -13,6 +13,21 @@
   var dlg, dTitle, dMsg, dInput, dConfirm, dCancel, toastEl, toastTimer = null;
   var resolveFn = null, mode = "confirm";
 
+  function setDialogCopy(title, message) {
+    var text = message == null ? "" : String(message);
+    var hasMessage = text.trim().length > 0;
+    dTitle.textContent = title;
+    dMsg.textContent = text;
+    dMsg.hidden = !hasMessage;
+    if (hasMessage) {
+      dlg.setAttribute("aria-describedby", dMsg.id);
+      dInput.setAttribute("aria-describedby", dMsg.id);
+    } else {
+      dlg.removeAttribute("aria-describedby");
+      dInput.removeAttribute("aria-describedby");
+    }
+  }
+
   function ensureRefs() {
     if (dlg) return;
     dlg = document.getElementById("akDialog");
@@ -42,9 +57,7 @@
     return new Promise(function (resolve) {
       if (!dlg) { resolve(false); return; }
       resolveFn = resolve; mode = "confirm";
-      dTitle.textContent = o.title || "Confirm";
-      dMsg.textContent = o.message || "";
-      dMsg.style.display = o.message ? "" : "none";
+      setDialogCopy(o.title || "Confirm", o.message);
       dInput.classList.add("is-hidden");
       dConfirm.classList.remove("is-hidden");
       dConfirm.textContent = o.confirmText || "Confirm";
@@ -60,9 +73,7 @@
     return new Promise(function (resolve) {
       if (!dlg) { resolve(); return; }
       resolveFn = function () { resolve(); }; mode = "confirm";
-      dTitle.textContent = o.title || "Heads up";
-      dMsg.textContent = o.message || "";
-      dMsg.style.display = o.message ? "" : "none";
+      setDialogCopy(o.title || "Heads up", o.message);
       dInput.classList.add("is-hidden");
       dConfirm.classList.remove("is-hidden");
       dConfirm.textContent = o.confirmText || "OK";
@@ -80,9 +91,7 @@
     return new Promise(function (resolve) {
       if (!dlg) { resolve(null); return; }
       resolveFn = resolve; mode = "prompt";
-      dTitle.textContent = o.title || "Enter a value";
-      dMsg.textContent = o.message || "";
-      dMsg.style.display = o.message ? "" : "none";
+      setDialogCopy(o.title || "Enter a value", o.message);
       dInput.classList.remove("is-hidden");
       dInput.value = o.defaultValue || "";
       dInput.placeholder = o.placeholder || "";
@@ -112,6 +121,31 @@
   function nextSelectId(prefix) {
     selectId += 1;
     return prefix + "-" + selectId;
+  }
+
+  function mirrorAttribute(source, target, name) {
+    if (source.hasAttribute(name)) target.setAttribute(name, source.getAttribute(name));
+    else target.removeAttribute(name);
+  }
+
+  function referencedText(ids) {
+    if (!ids) return "";
+    var text = [];
+    var parts = ids.trim().split(/\s+/);
+    for (var i = 0; i < parts.length; i++) {
+      var node = document.getElementById(parts[i]);
+      if (node && node.textContent.trim()) text.push(node.textContent.trim());
+    }
+    return text.join(" ");
+  }
+
+  function fieldLabel(sel, labels) {
+    var labelled = referencedText(sel.getAttribute("aria-labelledby"));
+    if (labelled) return labelled;
+    var ariaLabel = (sel.getAttribute("aria-label") || "").trim();
+    if (ariaLabel) return ariaLabel;
+    if (labels && labels.length && labels[0].textContent.trim()) return labels[0].textContent.trim();
+    return "options";
   }
 
   function closeSelect(returnFocus) {
@@ -179,18 +213,30 @@
     if (label) label.textContent = opt ? opt.textContent : "";
     var buttons = optionButtons(wrap);
     for (var i = 0; i < buttons.length; i++) {
+      var index = parseInt(buttons[i].dataset.idx, 10);
+      var sourceOption = sel.options[index];
+      var groupDisabled = sourceOption && sourceOption.parentElement &&
+        sourceOption.parentElement.tagName === "OPTGROUP" && sourceOption.parentElement.disabled;
+      if (sourceOption) buttons[i].textContent = sourceOption.textContent;
       buttons[i].setAttribute(
         "aria-selected",
-        String(parseInt(buttons[i].dataset.idx, 10) === sel.selectedIndex)
+        String(index === sel.selectedIndex)
       );
+      buttons[i].setAttribute("aria-disabled", String(!sourceOption || sourceOption.disabled || groupDisabled));
     }
+    mirrorAttribute(sel, trigger, "aria-label");
+    mirrorAttribute(sel, trigger, "aria-labelledby");
+    mirrorAttribute(sel, trigger, "aria-describedby");
+    mirrorAttribute(sel, trigger, "aria-errormessage");
+    wrap.__fieldLabel = fieldLabel(sel, wrap.__labels);
+    if (wrap.__search) wrap.__search.setAttribute("aria-label", "Search " + wrap.__fieldLabel);
     trigger.disabled = sel.disabled;
     trigger.setAttribute("aria-required", String(sel.required));
     wrap.classList.toggle("is-disabled", sel.disabled);
     if (sel.disabled && openSelect === wrap) closeSelect(false);
     if (wrap.__invalid && sel.validity.valid) wrap.__invalid = false;
     if (wrap.__invalid) trigger.setAttribute("aria-invalid", "true");
-    else trigger.removeAttribute("aria-invalid");
+    else mirrorAttribute(sel, trigger, "aria-invalid");
   }
 
   function commitActive(wrap, returnFocus) {
@@ -376,8 +422,8 @@
       wrap.__activeIndex = sel.selectedIndex;
       wrap.__invalid = false;
       wrap.__listId = nextSelectId("ak-listbox");
-      wrap.__fieldLabel = sel.getAttribute("aria-label") ||
-        (labels.length ? labels[0].textContent.trim() : "options");
+      wrap.__labels = labels;
+      wrap.__fieldLabel = fieldLabel(sel, labels);
       parent.insertBefore(wrap, sel);
       wrap.appendChild(sel);
 
@@ -390,10 +436,6 @@
       trigger.setAttribute("aria-controls", wrap.__listId);
       trigger.setAttribute("aria-autocomplete", "none");
       trigger.innerHTML = '<span class="ak-select-label"></span>';
-      if (sel.hasAttribute("aria-label")) trigger.setAttribute("aria-label", sel.getAttribute("aria-label"));
-      if (sel.hasAttribute("aria-labelledby")) trigger.setAttribute("aria-labelledby", sel.getAttribute("aria-labelledby"));
-      if (sel.hasAttribute("aria-describedby")) trigger.setAttribute("aria-describedby", sel.getAttribute("aria-describedby"));
-      if (sel.hasAttribute("aria-errormessage")) trigger.setAttribute("aria-errormessage", sel.getAttribute("aria-errormessage"));
       for (var i = 0; i < labels.length; i++) {
         if (labels[i].htmlFor === sel.id) labels[i].htmlFor = trigger.id;
       }

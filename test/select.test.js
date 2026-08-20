@@ -95,6 +95,54 @@ describe("admin-kit dropdown", () => {
     expect(document.activeElement).toBe(trigger);
   });
 
+  it("preserves the source name and referenced accessible name without duplicating form data", () => {
+    const choices = Array.from({ length: 13 }, (_, index) =>
+      `<option value="role-${index}">Role ${index}</option>`
+    ).join("");
+    const { select, trigger, panel } = boot(`
+      <form id="settings">
+        <label id="role-name" for="role">Resident role</label>
+        <select id="role" name="role" data-ak-select aria-labelledby="role-name" aria-describedby="role-help">
+          ${choices}
+        </select>
+        <p id="role-help">Choose one role.</p>
+      </form>
+    `);
+    const data = new FormData(document.getElementById("settings"));
+
+    expect(document.getElementById("role-name").htmlFor).toBe(trigger.id);
+    expect(trigger.getAttribute("aria-labelledby")).toBe("role-name");
+    expect(trigger.getAttribute("aria-describedby")).toBe("role-help");
+    expect(panel.querySelector('input[type="search"]').getAttribute("aria-label")).toBe("Search Resident role");
+    expect(select.name).toBe("role");
+    expect(trigger.name).toBe("");
+    expect(data.getAll("role")).toEqual(["role-0"]);
+  });
+
+  it("keeps selected and active option semantics distinct and commits with Space", () => {
+    const { select, trigger, panel } = boot();
+    const first = panel.querySelector('[data-idx="0"]');
+    const second = panel.querySelector('[data-idx="1"]');
+
+    trigger.focus();
+    key(trigger, " ");
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    expect(trigger.getAttribute("aria-activedescendant")).toBe(first.id);
+    expect(first.getAttribute("aria-selected")).toBe("true");
+
+    key(trigger, "ArrowDown");
+    expect(trigger.getAttribute("aria-activedescendant")).toBe(second.id);
+    expect(first.getAttribute("aria-selected")).toBe("true");
+    expect(second.getAttribute("aria-selected")).toBe("false");
+
+    key(trigger, " ");
+    expect(select.value).toBe("renewal-14d");
+    expect(first.getAttribute("aria-selected")).toBe("false");
+    expect(second.getAttribute("aria-selected")).toBe("true");
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(trigger.getAttribute("aria-activedescendant")).toBeNull();
+  });
+
   it("selects by pointer, dispatches one change, and returns focus", () => {
     const { select, trigger, panel } = boot();
     const events = [];
@@ -111,6 +159,21 @@ describe("admin-kit dropdown", () => {
     expect(events).toEqual(["input", "change"]);
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it("does not emit input or change when pointer reselects the current option", () => {
+    const { select, trigger, panel } = boot();
+    const onInput = vi.fn();
+    const onChange = vi.fn();
+    select.addEventListener("input", onInput);
+    select.addEventListener("change", onChange);
+
+    trigger.click();
+    panel.querySelector('[data-idx="0"]').click();
+
+    expect(select.value).toBe("magic-link");
+    expect(onInput).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it("does not select disabled rows and preserves native form serialization", () => {
@@ -319,6 +382,26 @@ describe("admin-kit dropdown", () => {
     select.value = "one";
     window.AdminKit.refresh(document);
     expect(trigger.getAttribute("aria-invalid")).toBeNull();
+  });
+
+  it("refreshes ARIA references, required state, option text, and option availability", () => {
+    const { select, trigger, panel } = boot();
+    const second = panel.querySelector('[data-idx="1"]');
+
+    select.setAttribute("aria-label", "Updated template");
+    select.removeAttribute("aria-describedby");
+    select.required = false;
+    select.options[1].textContent = "Renewal soon";
+    select.options[1].disabled = true;
+    select.setAttribute("aria-invalid", "true");
+    window.AdminKit.refresh(document);
+
+    expect(trigger.getAttribute("aria-label")).toBe("Updated template");
+    expect(trigger.getAttribute("aria-describedby")).toBeNull();
+    expect(trigger.getAttribute("aria-required")).toBe("false");
+    expect(trigger.getAttribute("aria-invalid")).toBe("true");
+    expect(second.textContent).toBe("Renewal soon");
+    expect(second.getAttribute("aria-disabled")).toBe("true");
   });
 
   it("keeps a validated-invalid blank choice invalid when it is recommitted", () => {
