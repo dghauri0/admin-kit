@@ -104,8 +104,15 @@ store, transfers the explicit label and description relationship, mirrors
 required/disabled/invalid state, skips disabled options, and supports Arrow
 keys, Home/End, Enter/Space, Escape, Tab, and buffered type-ahead. Call
 `AdminKit.enhance(container)` after any dynamic `innerHTML` render, and
-`AdminKit.refresh(root)` after setting `.value` or `.disabled`
+`AdminKit.refresh(root)` after changing `.value`, `.disabled`, `.required`,
+option labels/availability, or ARIA naming and description attributes
 programmatically.
+
+The shared dialog template gives every confirm, alert, and prompt an accessible
+name from its title. A non-empty message becomes the dialog description; prompt
+inputs use the same title and message relationships. Empty or subsequently
+omitted messages are hidden and removed from those relationships so assistive
+technology never announces stale copy.
 
 The date/time enhancer currently renders five-minute choices. Consumers that
 require a different `step`, strict `min`/`max` behavior, or a native mobile
