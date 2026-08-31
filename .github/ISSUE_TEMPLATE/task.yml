@@ -1,0 +1,56 @@
+name: Task or enhancement
+description: Scope a product, engineering, research, debt, or documentation outcome.
+title: ""
+labels: []
+projects: ["dghauri0/5"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use an issue for deferred, risky, multi-session, cross-repository, or human-step work. Each leaf issue belongs to exactly one Project; cross-product initiatives use a parent issue with product-owned child issues.
+  - type: dropdown
+    id: work_type
+    attributes:
+      label: Work type
+      options:
+        - Feature
+        - Technical debt
+        - Research
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Describe the user or operational result, not merely the code change.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What exists today, and why is this worth doing?
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and constraints
+      description: Include explicit exclusions, privacy or security boundaries, and compatibility requirements.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: "- [ ] Observable result\n- [ ] Regression coverage\n- [ ] Operational verification"
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Tests, production checks, or evidence required before closing.
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and human steps
+      description: Link blocking issues and name any dashboard, account, approval, or physical action. Never paste secrets.
